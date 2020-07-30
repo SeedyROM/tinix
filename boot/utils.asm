@@ -42,10 +42,49 @@ read_disk_bootsector:
         jmp $ ; Loop forever, don't mess things up
         
 
+printh:
+    pusha
+    
+    mov si, printh_pattern ; Move the string into si register
+
+    mov bx, dx
+    shr bx, 12
+    mov bx, [bx + printh_character_table]
+    mov [printh_pattern + 2], bl
+
+    mov bx, dx
+    shr bx, 8
+    and bx, 0x000f
+    mov bx, [bx + printh_character_table]
+    mov [printh_pattern + 3], bl
+
+    mov bx, dx
+    shr bx, 4
+    and bx, 0x000f
+    mov bx, [bx + printh_character_table]
+    mov [printh_pattern + 4], bl
+
+    mov bx, dx
+    and bx, 0x000f
+    mov bx, [bx + printh_character_table]
+    mov [printh_pattern + 5], bl
+
+    call printf ; Print the modified string
+
+    popa
+    ret
+
 ;
 ; Strings
 ;
 
+; Loader
+
 loading_message db "[ ] Loading Tinix from 16-bit realmode 0x7c00...", 0xa, 0xd, 0
 disk_error_message db "[-] Error Reading Disk", 0xa, 0xd, 0
 loaded_message db "[+] Successfully loaded bootloader into memory!", 0xa, 0xd, 0
+
+; Etc
+
+printh_pattern db "0x****", 0xa, 0xd, 0
+printh_character_table db "0123456789abcdef"
